@@ -253,7 +253,7 @@ const logo = this.tag("Logo");
 ``` 
 
 Next we see the components properties, we position the component 960px on the x-axis and 540 on the y-axis.
-By settings the [mount](http://@todo-link) we the component to exactly align in the center, no matter the future
+By settings the [mount](https://webplatformforembedded.github.io/Lightning/docs/renderEngine/elements/positioning#mount) we the component to exactly align in the center, no matter the future
 dimensions of the property.
 
 
@@ -262,13 +262,13 @@ x: 960, y: 540, mount:0.5,
 ``` 
 
 By setting the `text` property we force the Component to be of type `Lightning.texture.TextTexture`, this
-means we can start adding [text properties](htttp://todo-link) (see our documentation for all the possible text properties)
+means we can start adding [text properties](https://webplatformforembedded.github.io/Lightning/docs/textures/text) (see our documentation for all the possible text properties)
 
 ```
 text:{text:'LOADING..', fontFace:'pixel'}
 ```
 
-Now that we've successfully set up our `Splash template` we start by adding our first [lifecycle event] (https://webplatformforembedded.github.io/Lightning/docs/components/overview#component-events)
+Now that we've successfully set up our `Splash template` we start by adding our first [lifecycle event](https://webplatformforembedded.github.io/Lightning/docs/components/overview#component-events)
 
 ```
 _init() {
@@ -277,7 +277,7 @@ _init() {
 ```
 
 The `init` hook will be called when a component is attached for the first time. Inside the _init hook
-we will start defining our [animation](http://@todo-link) (Go to the animation part of our documentation)
+we will start defining our [animation](https://webplatformforembedded.github.io/Lightning/docs/animations/overview) (Go to the animation part of our documentation)
 
 ```
 _init(){
@@ -330,7 +330,7 @@ static _template() {
 
 One new thing we see in our splash implementation is the use of the `signals` property.
 
-> A [Signal](https://webplatformforembedded.github.io/Lightning/docs/components/communication/signal#__docusaurus) tells the parent component that some event happened on this component.
+> A [Signal](https://webplatformforembedded.github.io/Lightning/docs/components/communication/signal) tells the parent component that some event happened on this component.
 
 ---
 
@@ -598,7 +598,7 @@ As defined before we add the `$enter()` and `$exit()` hooks to hide / show the `
 
 > The focus path is determined by calling the _getFocused() method of the app object. By default, or if undefined is returned, the focus path stops here and the app is the active component (and the focus path only contains the app itself). When _getFocused() returns a child component however, that one is also added to the focus path, and its _getFocused() method is also invoked. This process may repeat recursively until the active component is found. To put it another way: the components may delegate focus to descendants.
 
-You can read more in the documentation about [focus](https://webplatformforembedded.github.io/Lightning/docs/focus/focus#__docusaurus)
+You can read more in the documentation about [focus](https://webplatformforembedded.github.io/Lightning/docs/focus/focus#__docusaurus) and [remote control](https://webplatformforembedded.github.io/Lightning/docs/focus/keyhandle) key handling
 
 When our app is in the `Main` state we delegate the focus to our `Main` component, which in essence means: 
 `Telling Lightning which component is the active component - and should handle key events`
