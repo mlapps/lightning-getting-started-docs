@@ -180,6 +180,22 @@ static _states(){
 }
 ```
 
+Lets step back for a brief moment and think about the different Views / Components we want to create for a game like `Tic Tac Toe`
+We probably need a: 
+
+1. A `Splash` screen to display a logo, or when you're creating a different type of app acts as a placeholder up untill the moment
+that all external request are fullfilled and assets are preloaded (if that is a requirement)
+2. A `Main` screen on which the user of the app lands after the `splash` screen hides. In the `main` screen we also render a menu
+which has some interaction with the `remote control`
+3. A `Game` screen. This screen will hold all the components which are needed to display our Tic Tac Toe game.
+4. A `Menu` Component with `Item` Components.
+
+Also we need something like a `Utils` library which holds the Ai related logic because we're creating a Game which
+can be played against a computer controlled player.
+
+
+
+
 
 
 
