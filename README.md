@@ -123,7 +123,7 @@ Now we a basic setup and we can move over to the next phase, the actual developm
 
 ### Developing your app
 
-And now it's time for fun! We can start the actual development of the app!
+And now we move over to the fun part! We can start the actual development of the app!
 
 First we start by creating a new file `App.js` (the one we've referenced in our `index.js` file but at this moment is 
 missing in our project folder)
@@ -157,12 +157,15 @@ static getFonts() {
 ```
 
 After including the fonts we start by defining the root template of our app on which we will be attaching the components
-that our needed in our app. 
+that our needed in our app. For now we specify the [rect](https://webplatformforembedded.github.io/Lightning/docs/textures/rectangle) property which will use `Lightning.texture.RectangleTexture` 
+to draw a black rectangle of 1920px by 1080px
+
+> colors are [ARGB](https://ifpb.github.io/javascript-guide/ecma/expression-and-operator/argb.html) values
 
 ```
 static _template(){ 
     return {
-    
+        rect: true, color: 0xff000000, w: 1920, h: 1080
     }
 }
 
@@ -278,30 +281,189 @@ we will start defining our [animation](http://@todo-link) (Go to the animation p
 
 ```
 _init(){
+    // create animation and store a reference, so we can start / stop / pause 
+    // in the fututre
     this._pulse = this.tag("Logo").animation({
-        duration: 4, repeat: -1, actions:[
+        duration: 4, repeat: 0, actions:[
             {p:'alpha', v:{0:0, 1:0.5, 1:0}}
         ]
     });
     
+    // add a finish eventlistener, so we can send a signal
+    // to the parent when the animation is completed
     this._pulse.on("finish", ()=>{
-        this.signal("Loaded");
+        this.signal("loaded");
     })
 }
 ```
 
 Next we add a `active` hook to our Component, this will be called when a component is activated, visible
-and on screen.
+and on screen. Inside the `active` hook we start our animation.
+
+```
+_active(){
+    this._pulse.start();
+}
+
+```
+
+Now that our `Splash` Component is ready we open the `App.js` file and start adding our component to the root template.
+We import our new component: 
+
+``` 
+import Splash from "./Splash.js";
+```
+
+And a the component to the template. To add an instance of defined `Component` we use the `type` attribute in
+our template definition.
+ 
+``` 
+static _template() {
+    return {
+        rect: true, color: 0xff000000, w: 1920, h: 1080,
+        Splash: {
+            type: Splash, signals: {loaded: true}, alpha: 0
+        }
+    };
+}
+```
+
+One new thing we see in our splash implementation is the use of the `signals` property.
+
+> A [Signal](https://webplatformforembedded.github.io/Lightning/docs/components/communication/signal#__docusaurus) tells the parent component that some event happened on this component.
+
+---
+
+#### Main.js
+
+Next stop, is creating the `Main` component which will be shown at the moment the `Splash` component 
+sends the `loaded` `signal`
+
+We create a new file called `Main.js` inside our `src` and add the following code: 
+
+``` 
+import { Lightning } from "wpe-lightning-sdk";
+
+export default class Main extends Lightning.Component {
+    static _template(){
+        return {
+        
+        }
+    }
+}
+```
+
+The Main's responsibility will be showing a `Menu` Component in his template and accepting remote control presses
+so a user can navigate through the menu items.
+
+##### Menu.js
+
+We add a new folder inside our `src` folder called `menu`. In a real world app you may want to structure your re-useable components
+a bit different. 
+
+Inside the `menu` folder we create a new file called `Menu.js`
+
+And populate it wit the following content:
+``` 
+export default class Menu extends Lightning.Component{
+    static _template(){
+        return {
+            // we define a empty holder for our items of 
+            // position it 40px relative to the component position 
+            // so we have some space for our focus indicator
+            Items:{
+                x:40
+            },
+            // Create a text component that indicates 
+            which item has focus
+            FocusIndicator:{y:5,
+                text:{text:'>', fontFace:'pixel'}
+            }
+        }
+    }
+}
+```
+
+We add an `init`, `active` and `inactive` hook in which we create and start our animation and create `index` property that 
+holds the number of the focused menu item.
 
 ```
 _init(){
-    this._pulse = this.tag("Logo").animation({
-        duration: 4, repeat: -1, actions:[
-            {p:'alpha', v:{0:0, 1:0.5, 1:0}}
+    // create a blinking animation 
+    this._blink = this.tag("FocusIndicator").animation({
+        duration:0.5, repeat:-1, actions:[
+            {p:'x', v:{0:0, 0.5:-40,1:0}}
         ]
     });
+
+    // current focused menu index
+    this._index = 0;
+}
+
+_active(){
+    this._blink.start();
+}
+
+_inactive(){
+    this._blink.stop();
 }
 ```
+
+We make a small sidestep by going back to `Main.js`, and define the Items we want to show in our `Menu`.
+We alter the template to the following, we import our menu component and add an `items` property to the 
+implementation.
+
+> There is a little trick you can use inside the instance of a Component when you add it to template, if you add non-lightning 
+properties to your (just like items in this example) the item will be directly availble in Component definition (this.items) 
+and by adding a setter (set item(v){} ) the setter will be automatically called upon initialization
+
+We provide an array of objects.
+
+``` 
+import { Lightning } from "wpe-lightning-sdk";
+import Menu from "./menu/Menu.js";
+
+export default class Main extends Lightning.Component {
+    static _template(){
+        return {
+            Menu:{
+                x: 600, y:400,
+                type: Menu, items:[
+                    {label:'START NEW GAME',action:'start'},
+                    {label:'CONTINUE',action:'continue'},
+                    {label:'ABOUT',action:'about'},
+                    {label:'EXIT', action:'exit'}
+                ]
+            }
+        }
+    }
+}
+```
+
+Now we go back to `Menu.js` and implement the items creation. `Lightning` support multiple ways of creating and adding
+components to the template. In this example we the `children` accessor and feed it with an array of objects which will
+be automatically created by `Lightning`.
+
+As noted before the `items` setter will be automatically called, so we can use the map function to return a new 
+array of objects. We also specifiy the type (which at this moment is not existing)
+
+``` 
+set items(v){
+    this.tag("Items").children = v.map((el, idx)=>{
+        return {type: Item, action: el.action, label: el.label, y: idx*90}
+    })
+}
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
