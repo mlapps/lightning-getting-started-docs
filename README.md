@@ -455,6 +455,97 @@ set items(v){
 }
 ```
 
+To actually add items we need to create the new Component `Item`. So we start buy creating a new file in our 
+menu folder called `Item.js` and add the following code: 
+
+``` 
+import { Lightning } from "wpe-lightning-sdk";
+
+export default class Item extends Lightning.Component{
+
+    static _template(){
+        return {
+            text:{text:'', fontFace:'pixel', fontSize:50}
+        }
+    }
+    
+    // will be automatically called
+    set label(v){
+        this.text.text = v;
+    }
+    
+    // will be automatically called
+    set action(v){
+        this._action = v;
+    }
+    
+    // will be automatically called
+    get action(){
+        return this._action;
+    }
+}
+```
+
+Now we go back to `Menu.js` and import the `Item` Component
+
+```
+import Item from "./Item.js";
+```
+
+No that we have `Menu` component which can be filled with `Item`'s it's time to start adding logic
+to out component; 
+
+we add an accessor to get the children inside the Items wrapper.
+
+```
+get items(){
+    return this.tag("Items").children;
+}
+```
+
+next we add a accessor to quickly grab the active (focused) item
+
+``` 
+get activeItem(){
+    return this.items[this._index];
+}
+```
+
+we implement our first remote control handler, so if this component has focus (via _getFocused() which will
+be explained later) and the user presses the `up` button, this function will be called. Inside the function
+we will call the `_setIndex` which we still need to declare.
+
+``` 
+_handleUp(){
+    this._setIndex(Math.max(0, --this._index));
+}
+```
+
+And we implement the logic if a user presses `down` on the remote
+
+```
+_handleDown(){
+    this._setIndex(Math.min(++this._index, this.items.length - 1));
+}
+```
+
+Next we declare the `_setIndex` function, this will accept a `index` argument
+changes the position of the focus indicator and it stores the new index.
+
+```
+_setIndex(idx){
+    // since it's a one time transition we use smooth
+    this.tag("FocusIndicator").setSmooth("y", idx*90 + 5);
+    
+    // store new index
+    this._index = idx;
+}
+```
+
+
+
+
+
 
 
 
