@@ -799,7 +799,7 @@ _handleDown(){
 
 We don't want continues navigation so we check if we're on the most left tile of a column, if so
 we block navigation. So lets say we're on the second row, second colums (which is tile index 4)
-and we press left, we check if the remainder is truthy `4%3 === 1` and call `setIndex` with the new index.
+and we press `left`, we check if the remainder is truthy `4%3 === 1` and call `setIndex` with the new index.
 If we're on the seconds row, first column (which is tile index 3) the remainder of `3%3` is 0 which
 so we don't match the condition and will not call `setIndex()`
 
@@ -810,6 +810,228 @@ _handleLeft(){
     if(idx%3){
         this._setIndex(idx - 1);
     }
+}
+```
+
+The logic for pressing `right` is mostly the same but check if the `index` of the new tile
+where we're navigating to has a remainder.
+
+```
+_handleRight(){
+    const newIndex = this._index + 1;
+    if(newIndex%3){
+        this._setIndex(newIndex);
+    }
+}
+```
+And the `setIndex()` function which does a transition of the `PlayerPosition` component to the new tile
+and stores the new index for future use.
+
+```
+_setIndex(idx){
+    this.tag("PlayerPosition").patch({
+        smooth:{
+            x: idx%3*300 + 425,
+            y: ~~(idx/3)*300 + 125
+        }
+    });
+    this._index = idx;
+}
+```
+
+If we run our game you can see that the outlines of the `Field` will be drawn and we can navigate over the
+game tiles, so next thing we need to do is the actual capturing of a tile by placing your marker on remote `enter` press
+
+On `enter` we first check if we're on an empty tile, if so we place our `X` marker and if the function's return value
+is `true` we set the `Game` component in a `Computer` state (which means it's the computers turn to play)
+
+``` 
+_handleEnter(){
+    if(this._tiles[this._index] === "e"){
+        if(this.place(this._index, "X")){
+            this._setState("Computer");
+        }
+    }
+}
+```
+
+The `place()` function will be called (as stated above) when a user presses `ok` or `enter` on the remote control:
+
+1. we update the tile value
+2. we render the new field
+3. We check if we have a winner (We will go over the Utils in a short moment)
+4. If we have a Winner we set the app to `End` state and `Winner` sub state
+5. and return false, so the _handleEnter logic will not go to `Computer` state
+6. If we don't have a winner we return true so the `Game` can go to `Computer` state
+
+``` 
+place(index, marker){
+    this._tiles[index] = marker;
+    this.render(this._tiles);
+
+    const winner = Utils.getWinner(this._tiles);
+    if(winner){
+        this._setState("End.Winner",[{winner}]);
+        return false;
+    }
+
+    return true;
+}
+```
+
+> in a real world game we would implement the logic of checking for a winner a changing to Computer state on a different level to make the app a bit more robust.
+
+Next thing that we're going to do is model the statemachine. The first state that we're going to add is the `Computer`
+state which means it's the computers turn to play.
+
+in the `$enter()` hook we 
+
+1. We calculate the new position the computer can move to
+2. If the `return` value is `-1` it means there are no possible move left and we force the `Game` Component in a `Tie` state because we don't have a winner
+3. We create a random timeout to give a player a feeling that it's really playing against a human opponent.
+4. We hide the `PlayerPosition` indicator
+5. When the timeout expires we call `place()` with th `0` marker and go back to the root state `_setState("")
+
+By adding `_captureKey()` we make that every keypress will be captured, but you can still perform some `keyCode` 
+specific logic.
+
+When we `$exit()` the `Computer` state we show the `PlayerPosition` indicator again, so the player knows it's
+his turn to play.
+
+``` 
+static _states(){
+    return [
+        class Computer extends this {
+            $enter(){
+                const position = Utils.AI(this._tiles);
+                if(position === -1){
+                    this._setState("End.Tie");
+                    return false;
+                }
+
+                setTimeout(()=>{
+                    if(this.place(position,"0")){
+                        this._setState("");
+                    }
+                }, ~~(Math.random()*1200)+200);
+
+                this.tag("PlayerPosition").setSmooth("alpha",0);
+            }
+
+            // make sure we don't handle
+            // any keypresses when the computer is playing
+            _captureKey({keyCode){ }
+
+            $exit(){
+                this.tag("PlayerPosition").setSmooth("alpha",1);
+            }
+        }
+    ]
+}
+```
+
+Next state that we're adding is the `End` state with the sub state `Winner` and `Tie`.
+First we add some shared logic between the `Winner` and `Tie` state.
+
+we wait for a use to press `enter / ok` in the `End` state and then we reset the `Game` (in reset() we also go back to root state)
+so this will make sure the `$exit()` hook will be called and that's where we show the compleet `Game` component again
+and we hide the notification.
+
+``` 
+static _states(){
+    return [
+        class Computer extends this {
+            // we hide the code for now
+        },
+        class End extends this{
+            _handleEnter(){
+                this._reset();
+            }
+            $exit(){
+                this.patch({
+                    Game:{
+                        smooth:{alpha:1}
+                    },
+                    Notification: {
+                        text:{text:''},
+                        smooth:{alpha:0}
+                    }
+                });
+            }
+            static _states(){
+                return [
+                
+                ]
+            }
+        }
+    ]
+}
+```
+
+We add a new `_states` object so we can start adding sub states.
+
+When we `$enter()` the `End.Winner` state we 
+
+1. Check if the winner is `X` so we increase to the player score
+2. else we increase the computer score
+3. Next we do a big [patch](https://webplatformforembedded.github.io/Lightning/docs/renderEngine/patching#__docusaurus) of the template in which we
+hide the Game field, updated the text of the scoreboard, update the `Notification` text and show the `Notification` Component
+
+When we `$enter()` the `End.Tie` state we
+
+1. Hide the Game field
+2. Update the `Notification` text
+3. And show the `Notification` Component
+
+``` 
+static _states(){
+    return [
+        class Computer extends this {
+            // we hide the code for now
+        },
+        class End extends this{
+            // we hide the code for now
+            static _states(){
+                return [
+                   class Winner extends this {
+                       $enter(args, {winner}){
+                           if(winner === 'X'){
+                               this._playerScore+=1;
+                           }else{
+                               this._aiScore+=1;
+                           }
+                           this.patch({
+                               Game:{
+                                   smooth:{alpha:0},
+                                   ScoreBoard:{
+                                       Player:{text:{text:`Player ${this._playerScore}`}},
+                                       Ai:{text:{text:`Computer ${this._aiScore}`}},
+                                   }
+                               },
+                               Notification: {
+                                   text:{text:`${winner==='X'?`Player`:`Computer`} wins (press enter to continue)`},
+                                   smooth:{alpha:1}
+                               }
+                           });
+                       }
+                   },
+                   class Tie extends this {
+                       $enter(){
+                           this.patch({
+                               Game: {
+                                   smooth: {alpha: 0}
+                               },
+                               Notification: {
+                                   text:{text:`Tie :( (press enter to try again)`},
+                                   smooth:{alpha:1}
+                               }
+                           });
+                       }
+                   }
+                ]
+            }
+        }
+    ]
 }
 ```
 
