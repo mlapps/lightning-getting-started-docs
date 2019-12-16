@@ -144,7 +144,8 @@ export default class App extends Lightning.Component {
 
 Inside our class declaration we define a new member `getFonts` that we're going to use. Get fonts
 returns an array of object with properties for all the different fonts our app uses (in this getting started we're only 
-using one font but it's possible for you to add multiple fonts to your project )
+using one font but it's possible for you to add multiple fonts to your project ) for this app i've downloaded a [pixel](https://dl.dafont.com/dl/?f=vcr_osd_mono)
+but feel free to use any font you like.
 
 ```
 static getFonts() {
