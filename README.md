@@ -511,24 +511,6 @@ get activeItem(){
 }
 ```
 
-we implement our first remote control handler, so if this component has focus (via _getFocused() which will
-be explained later) and the user presses the `up` button, this function will be called. Inside the function
-we will call the `_setIndex` which we still need to declare.
-
-``` 
-_handleUp(){
-    this._setIndex(Math.max(0, --this._index));
-}
-```
-
-And we implement the logic if a user presses `down` on the remote
-
-```
-_handleDown(){
-    this._setIndex(Math.min(++this._index, this.items.length - 1));
-}
-```
-
 Next we declare the `_setIndex` function, this will accept a `index` argument
 changes the position of the focus indicator and it stores the new index.
 
@@ -541,6 +523,313 @@ _setIndex(idx){
     this._index = idx;
 }
 ```
+
+Now that we're done with our `Menu` logic it's time to start show our `App` component when
+the `Splash` has send a `loaded` signal 
+
+---
+
+##### App.js
+
+First we add a new state to our empty state machine called `Splash`. And force our app to go in to that
+state upon `setup` via `_setState()`
+
+``` 
+_setup(){
+    this._setState("Splash");
+}
+
+static _states() {
+    return [
+        class Splash extends this {
+            $enter() {
+                this.tag("Splash").setSmooth("alpha", 1);
+            }
+            $exit() {
+                this.tag("Splash").setSmooth("alpha", 0);
+            }
+            // because we have defined 'loaded'
+            loaded() {
+                this._setState("Main");
+            }
+        }
+    ]
+```
+
+> The $enter() and $exit() will be automatically called upon when a component goes in that state or exit's that state so you can do some proper clean up if needed. In this specific case we want to make sure that our Splash component shows / hides.
+
+Take notice of the `loaded()` function, this will only be called when `Splash` fires the `loaded` signal while
+the app is in the `Splash` state. If it's not in the `Splash` state it will not be called (unless there is a loaded function
+in a different state / root state)
+
+Now add a new state to our App's statemachine implementation called `Main` (to safe some space i hide the Splash state implementation, but it will still be there)
+
+
+``` 
+_setup(){
+    this._setState("Splash");
+}
+
+static _states() {
+    return [
+        class Splash extends this {...},
+        class Main extends this {
+            $enter() {
+                this.tag("Main").patch({
+                    smooth:{alpha:1, y:0}
+                });
+            }    
+            $exit() {
+                this.tag("Main").patch({
+                    smooth:{alpha:0, y:100}
+                });
+            }    
+            // change focus path to main
+            // component which handles the remotecontrol
+            _getFocused() {
+                return this.tag("Main");
+            }
+        }
+    ]
+```
+
+As defined before we add the `$enter()` and `$exit()` hooks to hide / show the `Main` component. Also we see the
+`_getFocused` popping up for the first time.
+
+> The focus path is determined by calling the _getFocused() method of the app object. By default, or if undefined is returned, the focus path stops here and the app is the active component (and the focus path only contains the app itself). When _getFocused() returns a child component however, that one is also added to the focus path, and its _getFocused() method is also invoked. This process may repeat recursively until the active component is found. To put it another way: the components may delegate focus to descendants.
+
+You can read more in the documentation about [focus](https://webplatformforembedded.github.io/Lightning/docs/focus/focus#__docusaurus)
+
+When our app is in the `Main` state we delegate the focus to our `Main` component, which in essence means: 
+`Telling Lightning which component is the active component - and should handle key events`
+
+Now that have delegated the focus to the `Main` component we can open `Menu.js` again and start implementing
+the remote control handling:
+
+we implement our first remote control handler, so if this component has focus (via _getFocused() which will
+be explained later) and the user presses the `up` button, this function will be called. Inside the function
+we will call the `_setIndex` which we still need to declare.
+
+``` 
+_handleUp(){
+    this._setIndex(Math.max(0, --this._index));
+}
+```
+
+And we implement the logic if a user presses `down` on the remote;
+
+```
+_handleDown(){
+    this._setIndex(Math.min(++this._index, this.items.length - 1));
+}
+```
+
+Next stop, building the Actual game!
+
+---
+
+##### Game.js
+
+In our `src` folder we create a new file called `Game.js` and populate it with the following code;
+Im not fgoing to explain every line in detail but will hightlight some parts: 
+
+``` 
+import { Lightning } from "wpe-lightning-sdk";
+export default class Game extends Lightning.Component {
+    static _template(){
+        return {
+            Game:{
+                PlayerPosition:{
+                    rect: true, w: 250, h: 250, color: 0x40ffffff,
+                    x: 425, y: 125
+                },
+                Field:{
+                    x: 400, y: 100,
+                    children:[
+                        {rect: true, w:1, h:5, y:300},
+                        {rect: true, w:1, h:5, y:600},
+                        {rect: true, h:1, w:5, x:300, y:0},
+                        {rect: true, h:1, w:5, x:600, y:0}
+                    ]
+                },
+                Markers:{
+                    x: 400, y: 100
+                },
+                ScoreBoard:{ x: 100, y: 170,
+                    Player:{
+                        text:{text:'Player 0', fontSize:29, fontFace:'Pixel'}
+                    },
+                    Ai:{ y: 40,
+                        text:{text:'Computer 0', fontSize:29, fontFace:'Pixel'}
+                    }
+                }
+            },
+            Notification:{
+                x: 100, y:170, text:{fontSize:70, fontFace:'Pixel'}, alpha: 0
+            }
+        }
+    }
+}
+```
+
+We've added a `Game` component which acts a wrapper for the Game board an score board so it will be easy
+to hide all the contents at once. 
+
+1. PlayerPosition, this is an focus indicator of which tile the player currently is
+2. Field, the outlines of the game field
+3. Markers, the placed [ X ] / [ 0 ] 
+4. ScoreBoard, the current score for player and computer
+5. Notification, the endgame notification (player wins, tie etc), in a real world app we probably would
+move the Notification handler to a different (higher) level so we multiple component can make use of it.
+
+It's also possible to (instead instancing a component via type) to populate the `children` within the template.
+This will populate the the `Field` Component with 5 lines (rectangles) we also draw two 1px by 5px component and 2 components
+5px by 1px components.
+
+``` 
+Field:{
+    x: 400, y: 100,
+    children:[
+        {rect: true, w:1, h:5, y:300},
+        {rect: true, w:1, h:5, y:600},
+        {rect: true, h:1, w:5, x:300, y:0},
+        {rect: true, h:1, w:5, x:600, y:0}
+    ]
+}
+```
+
+Let's start adding some logic, we start by adding a new lifecycle event called `construct`
+
+```
+_construct(){
+    // current player tile index
+    this._index = 0;
+    
+    // computer score
+    this._aiScore = 0;
+    
+    // player score
+    this._playerScore = 0;
+} 
+```
+
+Next lifecycle event we add is `active` this will be called when a component `visible` property is true,
+`alpha` higher then 0 and positioned in the renderable screen.
+
+``` 
+_active(){
+    this._reset();
+    
+    // we iterate over the outlines of the field and do a nice
+    // transition of the width / height, so it looks like the 
+    // lines are being drawn realtime.
+    
+    this.tag("Field").children.forEach((el, idx)=>{
+        el.setSmooth(idx<2?"w":"h", 900, {duration:0.7, delay:idx*0.15})
+    })
+}
+```
+
+The `setSmooth` function creates a transition for a give property with the provided value:
+Look in the documentation to read more about [smoothing](https://webplatformforembedded.github.io/Lightning/docs/transitions/overview#starting-a-transition).
+
+We add the `_reset()` method which fills all available tiles with `e` for empty, render the tiles
+and change the state back to root state.
+
+For the tile we use a array of 9 elements that we can use to all sorts of logic with (rendering / checking for winner / decide next move for the computer etc..)
+
+```
+_reset(){
+    // reset tiles
+    this._tiles = [
+        'e','e','e','e','e','e','e','e','e'
+    ];
+
+    // force render
+    this.render(this._tiles);
+
+    // change back to rootstate
+    this._setState("");
+}
+```
+
+Now we add our `render` method that accepts a set of tiles and draws some text
+based on the tile value 
+
+> e => empty / x => Player / 0 => computer
+
+``` 
+render(tiles){
+    this.tag("Markers").children = tiles.map((el, idx)=>{
+        return {
+            x: idx%3*300 + 110,
+            y: ~~(idx/3)*300 + 90,
+            text:{text:el === "e"?'':`${el}`, fontSize:100},
+        }
+    });
+}
+```
+
+Now that we have a good setup for rendering tiles and showing outlines on `active` we can proceed 
+to implementing remote control handling.
+
+Since we're working with a 3x3 playfield we check (on remotecontrol `up` )if the new index we want to focus on is larger or
+equal then zero, if we so we call the (to be implemented) `setIndex()` function. 
+
+``` 
+_handleUp(){
+    let idx = this._index;
+    if(idx-3 >= 0){
+        this._setIndex(idx-3);
+    }
+}
+```
+
+The logic for pressing `down` is mostly equal to the `up` but we check if the new index
+is not larger then the amount of available tiles.
+
+``` 
+_handleDown(){
+    let idx = this._index;
+    if(idx+3 <= this._tiles.length - 1){
+        this._setIndex(idx+3);
+    }
+}
+```
+
+We don't want continues navigation so we check if we're on the most left tile of a column, if so
+we block navigation. So lets say we're on the second row, second colums (which is tile index 4)
+and we press left, we check if the remainder is truthy `4%3 === 1` and call `setIndex` with the new index.
+If we're on the seconds row, first column (which is tile index 3) the remainder of `3%3` is 0 which
+so we don't match the condition and will not call `setIndex()`
+
+
+```
+_handleLeft(){
+    let idx = this._index;
+    if(idx%3){
+        this._setIndex(idx - 1);
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
