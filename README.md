@@ -193,7 +193,115 @@ which has some interaction with the `remote control`
 Also we need something like a `Utils` library which holds the Ai related logic because we're creating a Game which
 can be played against a computer controlled player.
 
+---
 
+#### Splash.js
+
+Inside the `src` folder we create a new file `Splash.js`. After the file is created we open the file
+and import the `Lightning framework` from the `SDK`
+
+```
+import { Lightning } from "wpe-lightning-sdk";
+```
+
+Next, export your Component class so the `App` can import it (we also)
+
+```
+export default class Splash extends Lightning.Component {
+
+}
+```
+
+Inside the class definition we create the `template` (For now we stick to a simple text label and an animation
+which fades in and out for a couple of seconds)
+
+```
+static _template(){
+    return {
+        Logo:{
+            x: 960, y: 540, mount:0.5,
+            text:{text:'LOADING..', fontFace:'pixel'}
+        }
+    }
+}
+```
+
+Lets briefly walk over every line inside the template definition to get a bit of understanding what is going on.
+
+```
+return {
+    Logo:{}
+}
+```
+
+We add a new empty `Component` to our render-tree with the reference (name) `Logo`. A component's reference name
+must always start with a uppercase character. We use the name to get a reference to the component so we can
+manipulate it's properties in the future: 
+
+```
+// set x position
+this.tag("Logo").x = 200;
+
+// change alpha
+this.tag("Logo").alpha = 0.5;
+
+// store a reference 
+const logo = this.tag("Logo");
+``` 
+
+Next we see the components properties, we position the component 960px on the x-axis and 540 on the y-axis.
+By settings the [mount](http://@todo-link) we the component to exactly align in the center, no matter the future
+dimensions of the property.
+
+
+```
+x: 960, y: 540, mount:0.5,
+``` 
+
+By setting the `text` property we force the Component to be of type `Lightning.texture.TextTexture`, this
+means we can start adding [text properties](htttp://todo-link) (see our documentation for all the possible text properties)
+
+```
+text:{text:'LOADING..', fontFace:'pixel'}
+```
+
+Now that we've successfully set up our `Splash template` we start by adding our first [lifecycle event] (https://webplatformforembedded.github.io/Lightning/docs/components/overview#component-events)
+
+```
+_init() {
+
+}
+```
+
+The `init` hook will be called when a component is attached for the first time. Inside the _init hook
+we will start defining our [animation](http://@todo-link) (Go to the animation part of our documentation)
+
+```
+_init(){
+    this._pulse = this.tag("Logo").animation({
+        duration: 4, repeat: -1, actions:[
+            {p:'alpha', v:{0:0, 1:0.5, 1:0}}
+        ]
+    });
+    
+    this._pulse.on("finish", ()=>{
+        this.signal("Loaded");
+    })
+}
+```
+
+Next we add a `active` hook to our Component, this will be called when a component is activated, visible
+and on screen.
+
+```
+_init(){
+    this._pulse = this.tag("Logo").animation({
+        duration: 4, repeat: -1, actions:[
+            {p:'alpha', v:{0:0, 1:0.5, 1:0}}
+        ]
+    });
+}
+```
 
 
 
