@@ -108,8 +108,8 @@ export default class Game extends Lightning.Component {
         }
     }
 
-    place(index, item){
-        this._tiles[index] = item;
+    place(index, marker){
+        this._tiles[index] = marker;
         this.render(this._tiles);
 
         const winner = Utils.getWinner(this._tiles);
