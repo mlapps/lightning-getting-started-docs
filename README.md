@@ -294,6 +294,9 @@ _init(){
     this._pulse.on("finish", ()=>{
         this.signal("loaded");
     })
+    
+    // start the animation
+    this._pulse.start();
 }
 ```
 
