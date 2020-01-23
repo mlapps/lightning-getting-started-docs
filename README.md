@@ -1096,33 +1096,21 @@ const getFutureWinningIndex = (tiles) => {
 
 We finished all the logic for the `Game` and now it's time to test it (a thing we normally do during development ;) )
 
-### Run, test and deploy
+### Launch it
 
-We step back to the `package.json` file in the root of our directory and inspect the available scripts.
+Open your terminal and type `lng` and take a look at the different commands.
 
-```
-{
-  "name": "TicTacToe",
-  "scripts": {
-    "build": "npm explore wpe-lightning-sdk -- npm --baseDir=$(pwd) run build",
-    "start": "npm explore wpe-lightning-sdk -- npm --baseDir=$(pwd) run start",
-    "release": "npm explore wpe-lightning-sdk -- npm --baseDir=$(pwd) run release",
-    "dev": "npm explore wpe-lightning-sdk -- npm --baseDir=$(pwd) run dev",
-    "upload": "npm explore wpe-lightning-sdk -- npm --baseDir=$(pwd) run upload"
-  },
-  "dependencies": {
-    "wpe-lightning-sdk": "git+https://github.com/WebPlatformForEmbedded/Lightning-SDK.git#next"
-  }
-}
-```
+####Commands:
+* `lng create` Create a new Lightning App
+* `lng build` Build a standalone Lightning App (to run in a web browser)
+* `lng serve` Start a local webserver and run a Lightning App in a web browser
+* `lng watch` Watch the for file changes and automatically rebuild the app
+* `lng dev` Build a standalone Lightning App, start a local webserver and watch for changes
+* `lng docs` Open the Lightning-SDK documentation
+* `lng release` Build a release package of a Lightning App
+* `lng upload` Upload release package to Metrological Back Office
 
-> `npm explore` Will spawn a subshell in the directory of the installed package specified. If a command is specified, then it is run in the subshell, which then immediately terminates.
-
-1. build, this will execute the build script from our SDK
-2. start, will start a webserver and automatically open your browser pointing to the correct location
-3. release, will create a package 
-4. dev, will run a build and start (serve)
-5. upload, will upload the app to metrological's dashboard (you will need an api key)
+We will run `lng dev` and should be able to play a game of tic-tac-toe against an AI opponent
 
 
 
