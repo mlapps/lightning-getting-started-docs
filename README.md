@@ -22,7 +22,7 @@ game I suggest checking out: https://en.wikipedia.org/wiki/Tic-tac-toe
 6. Next fill in the identifier `com.company.app.TicTacToe` (or something that is more suitable to your situation)
 7. Choose if you want to enable ESlint or not.
 8. Next select `yes` for installing the NPM dependencies
-9. Choose `no` for initializing an empty GIT repository
+9. Choose `yes` for initializing an empty GIT repository
 
 After the dependencies are succesfully installed you can navigate to the created app folder (in our example `cd com.metrological.app.TicTacToe`)
 
