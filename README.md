@@ -14,54 +14,55 @@ game I suggest checking out: https://en.wikipedia.org/wiki/Tic-tac-toe
 
 ### Setting up your environment
 
-We will use the Lightning SDK to power the app, at the time of writing we're still working on the next version of our SDK
-which can be found here: https://github.com/WebPlatformForEmbedded/Lightning-SDK/tree/next
+1. Start by installing the Lightning-CLI (Command-line interface) `npm install -g WebPlatformForEmbedded/Lightning-CLI`
+2. Navigate to a folder on your machine where you want to place your project
+3. On the command-line type: `lng` to see all the available options.
+4. type `lng create` to create a new Lightning app
+5. Type the name `TicTacToe`
+6. Next fill in the identifier `com.company.app.TicTacToe` (or something that is more suitable to your situation)
+7. Choose if you want to enable ESlint or not.
+8. Next select `yes` for installing the NPM dependencies
+9. Choose `no` for initializing an empty GIT repository
 
-First we create a new folder on our machine called: `TicTacToe`. First thing we start with is creating a `metadata.json` in the
-root of our directory and fill it with the following contents:
+After the dependencies are succesfully installed you can navigate to the created app folder (in our example `cd com.metrological.app.TicTacToe`)
+
+We now have a couple of options: 
+
+1. `lng build` will create a standalone bundle that you can run in the browser
+2. `lng serve` will start a local webserver and run the app
+3. `lng dev` will build the app, start a webserver and watch for changes.
+
+You can use these whenever you want throughout this `getting started` 
+
+
+### App contents
+
+When you inspect the contents in your app folder you will find the following files: 
+
+* `README.md` a markdown readme file that can hold instructions for configuration, installation, changelogs etc.
+* `metadata.json` this hold the following app related metadata:
 
 ```
 {
   "name": "TicTacToe",
-  "identifier": "com.company.app.TicTacToe",
-  "version": "1.0.0"
+  "identifier": "com.metrological.app.TicTacToe",
+  "version": "1.0.0",
+  "icon": "./static/icon.png"
 }
-
 ```
-
-
-Next we create a `package.json` file
-
-> this file holds various metadata relevant to the project. This file is used to give information to npm that allows it to identify the project as well as handle the project's dependencies. It can also contain other metadata such as a project description, the version of the project in a particular distribution, license information, even configuration data - all of which can be vital to both npm and to the end users of the package. The package.json file is normally located at the root directory
-
-We add the following contents to the file:
+* `package.json` this file holds various [metadata](https://nodejs.org/en/knowledge/getting-started/npm/what-is-the-file-package-json/) relevant to the project
 
 ```
 {
-  "name": "TicTacToe",
-  "scripts": {
-    "build": "npm explore wpe-lightning-sdk -- npm --baseDir=$(pwd) run build",
-    "start": "npm explore wpe-lightning-sdk -- npm --baseDir=$(pwd) run start",
-    "release": "npm explore wpe-lightning-sdk -- npm --baseDir=$(pwd) run release",
-    "dev": "npm explore wpe-lightning-sdk -- npm --baseDir=$(pwd) run dev",
-    "upload": "npm explore wpe-lightning-sdk -- npm --baseDir=$(pwd) run upload"
-  },
+  "name": "com.metrological.app.TicTacToe",
+  "description": "TicTacToe",
   "dependencies": {
-    "wpe-lightning-sdk": "git+https://github.com/WebPlatformForEmbedded/Lightning-SDK.git#next"
+    "wpe-lightning-sdk": "WebPlatformForEmbedded/Lightning-SDK"
   }
 }
-
-``` 
-
-Now we run the following command in the terminal `npm install` in the root directory of our project
-and this will install all the dependencies to the folder: `./node_modules`
-
-If you inspect the `./node_modules` you will see the folders `wpe-lightning` which holds the source of Lightning
-and `wpe-lightning-sdk` which is our SDK.
-
-After installing our dependecies we can create a new file in the root of our folder called: `settings.json`
-which holds app and platform specifc settings.
-
+```
+* `package-lock.json` is automatically generated for any operations where npm modifies either the node_modules tree, or package.json. [Read more...](https://docs.npmjs.com/files/package-lock.json)
+* `settings.json` which holds app and platform specific settings.
 
 ```
 {
@@ -77,8 +78,8 @@ which holds app and platform specifc settings.
     "path": "./static",
     "log": false,
     "showVersion": true,
-    "imageServerUrl": "//cdn.metrological.com/image",
-    "proxyUrl": "//cdn.metrological.com/proxy",
+    "imageServerUrl": "",
+    "proxyUrl": "",
     "textureMode": true
   }
 }
@@ -93,13 +94,10 @@ which holds app and platform specifc settings.
 7. showVersion, if set to true, will overlay the app's version in the corner (version specified in `metadata.json`)
 8. imageServerUrl, if you have an image resizing server set the value to the endpoint
 9. proxyUrl, if you have access to a proxy server (i.e to cache data to speed up network request) you set the value to the endpoint
-10. textureMode, specifiy if you want to render video as a texture on the active drawing canvas
+10. textureMode, specify if you want to render video as a texture on the active drawing canvas
 
 
-When we have tweaked our app and platform specific settings we add a new `src` folder to our project, this will hold
-all the source files necessary to run our app.
-
-Inside the `src` folder we create the first file called `index.js` and add the contents: 
+Inside the `src` folder we find an `index.js` and with the following contents that are needed to launch our app.
 
 ```
 import { Launch } from 'wpe-lightning-sdk'
@@ -115,9 +113,9 @@ modules of the SDK you want to use.
 
 > Eventually when we bundle and run the game, our bundler (rollup) will add the imported modules to the bundle so we keep an optimized codebase (no un-used code). This method is often refered to as treeshaking.
 
-1. We import Launch method from the SDK (will act as a bootstrapper) 
-2. Next we import our app from the (current not existing) App.js
-3. Export a function which upon invokation will Launch the app
+1. We import the Launch method from the SDK (will act as a bootstrapper) 
+2. Next we import our App class from App.js
+3. Export a function which upon invocation will Launch the app
 
 Now that we have a basic setup we can move over to the next phase, the actual development of the App.
 
@@ -125,8 +123,8 @@ Now that we have a basic setup we can move over to the next phase, the actual de
 
 And now we move over to the fun part! We can start the actual development of the app!
 
-First we start by creating a new file `App.js` (the one we've referenced in our `index.js` file but at this moment is 
-missing in our project folder)
+Inside the `src` folder you'll find the file `App.js` with some boilerplate code. You can run `lng dev` and test it out but for now we remove all the contents inside
+that file so we can build it from the ground up.
 
 First thing we do is importing the Lightning App framework via our SDK and Utils (which will be needed in a couple of seconds)
 
