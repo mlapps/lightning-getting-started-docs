@@ -2,7 +2,8 @@
   "appSettings": {
     "stage": {
       "clearColor": "0x00000000",
-      "useImageWorker": true
+      "useImageWorker": true,
+      "precision": 1
     },
     "debug": false
   },

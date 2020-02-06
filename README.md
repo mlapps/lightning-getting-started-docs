@@ -1100,7 +1100,8 @@ We finished all the logic for the `Game` and now it's time to test it (a thing w
 
 Open your terminal and type `lng` and take a look at the different commands.
 
-####Commands:
+####Commands
+
 * `lng create` Create a new Lightning App
 * `lng build` Build a standalone Lightning App (to run in a web browser)
 * `lng serve` Start a local webserver and run a Lightning App in a web browser
