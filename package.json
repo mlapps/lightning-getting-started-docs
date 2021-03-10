@@ -2,6 +2,6 @@
   "name": "com.metrological.app.TicTacToe",
   "description": "TicTacToe",
   "dependencies": {
-    "wpe-lightning-sdk": "WebPlatformForEmbedded/Lightning-SDK"
+    "@lightningjs/sdk": "^4.2.0"
   }
 }

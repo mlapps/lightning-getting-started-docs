@@ -1,4 +1,4 @@
-import { Lightning, Utils } from "wpe-lightning-sdk";
+import { Lightning, Utils } from "@lightningjs/sdk";
 import Splash from "./Splash.js";
 import Main from "./Main.js";
 import Game from "./Game.js";

@@ -1,4 +1,4 @@
-import { Lightning } from "wpe-lightning-sdk";
+import { Lightning } from "@lightningjs/sdk";
 import Menu from "./menu/Menu.js";
 
 export default class Main extends Lightning.Component {

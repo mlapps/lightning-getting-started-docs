@@ -1,4 +1,4 @@
-import { Lightning } from "wpe-lightning-sdk";
+import { Lightning } from "@lightningjs/sdk";
 import Utils from "./lib/GameUtils.js";
 
 export default class Game extends Lightning.Component {
