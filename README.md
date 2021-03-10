@@ -2,7 +2,7 @@
 
 This `getting started with Lightning` document will guide you through the first steps of building an app with Lightning.
 
-This guide consist of 3 main topics: 
+This guide consist of 3 main topics:
 1. Setting up your environment
 2. Develop your app
 3. Run, test and deploy
@@ -14,7 +14,7 @@ game I suggest checking out: https://en.wikipedia.org/wiki/Tic-tac-toe
 
 ### Setting up your environment
 
-1. Start by installing the Lightning-CLI (Command-line interface) `npm install -g WebPlatformForEmbedded/Lightning-CLI`
+1. Start by installing the Lightning-CLI (Command-line interface) `npm install -g @lightningjs/cli`
 2. Navigate to a folder on your machine where you want to place your project
 3. On the command-line type: `lng` to see all the available options.
 4. type `lng create` to create a new Lightning app
@@ -26,18 +26,18 @@ game I suggest checking out: https://en.wikipedia.org/wiki/Tic-tac-toe
 
 After the dependencies are succesfully installed you can navigate to the created app folder (in our example `cd com.metrological.app.TicTacToe`)
 
-We now have a couple of options: 
+We now have a couple of options:
 
 1. `lng build` will create a standalone bundle that you can run in the browser
 2. `lng serve` will start a local webserver and run the app
 3. `lng dev` will build the app, start a webserver and watch for changes.
 
-You can use these whenever you want throughout this `getting started` 
+You can use these whenever you want throughout this `getting started`
 
 
 ### App contents
 
-When you inspect the contents in your app folder you will find the following files: 
+When you inspect the contents in your app folder you will find the following files:
 
 * `README.md` a markdown readme file that can hold instructions for configuration, installation, changelogs etc.
 * `metadata.json` this hold the following app related metadata:
@@ -57,7 +57,7 @@ When you inspect the contents in your app folder you will find the following fil
   "name": "com.metrological.app.TicTacToe",
   "description": "TicTacToe",
   "dependencies": {
-    "wpe-lightning-sdk": "WebPlatformForEmbedded/Lightning-SDK"
+    "@lightningjs/sdk": "@lightningjs/sdk"
   }
 }
 ```
@@ -100,7 +100,7 @@ When you inspect the contents in your app folder you will find the following fil
 Inside the `src` folder we find an `index.js` and with the following contents that are needed to launch our app.
 
 ```
-import { Launch } from 'wpe-lightning-sdk'
+import { Launch } from '@lightningjs/sdk'
 import App from './App.js'
 
 export default function () {
@@ -108,12 +108,12 @@ export default function () {
 }
 ```
 
-This is the first time we really touch the SDK. Since we developed our SDK with a modular approach you can control which 
+This is the first time we really touch the SDK. Since we developed our SDK with a modular approach you can control which
 modules of the SDK you want to use.
 
 > Eventually when we bundle and run the game, our bundler (rollup) will add the imported modules to the bundle so we keep an optimized codebase (no un-used code). This method is often refered to as treeshaking.
 
-1. We import the Launch method from the SDK (will act as a bootstrapper) 
+1. We import the Launch method from the SDK (will act as a bootstrapper)
 2. Next we import our App class from App.js
 3. Export a function which upon invocation will Launch the app
 
@@ -129,19 +129,19 @@ that file so we can build it from the ground up.
 First thing we do is importing the Lightning App framework via our SDK and Utils (which will be needed in a couple of seconds)
 
 ```
-import { Lightning, Utils } from "wpe-lightning-sdk";
+import { Lightning, Utils } from "@lightningjs/sdk";
 ```
 
 After the import we create a new default [export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export) for our App Component
 
 ```
-export default class App extends Lightning.Component { 
+export default class App extends Lightning.Component {
 
 }
 ```
 
 Inside our class declaration we define a new member `getFonts` that we're going to use. Get fonts
-returns an array of object with properties for all the different fonts our app uses (in this getting started we're only 
+returns an array of object with properties for all the different fonts our app uses (in this getting started we're only
 using one font but it's possible for you to add multiple fonts to your project ) for this app I've downloaded a [pixel](https://dl.dafont.com/dl/?f=vcr_osd_mono)
 but feel free to use any font you like.
 
@@ -155,13 +155,13 @@ static getFonts() {
 ```
 
 After including the fonts we start by defining the root template of our app on which we will be attaching the components
-that are needed in our app. For now we specify the [rect](https://webplatformforembedded.github.io/Lightning/docs/textures/rectangle) property which will use `Lightning.texture.RectangleTexture` 
+that are needed in our app. For now we specify the [rect](https://webplatformforembedded.github.io/Lightning/docs/textures/rectangle) property which will use `Lightning.texture.RectangleTexture`
 to draw a black rectangle of 1920px by 1080px
 
 > colors are [ARGB](https://ifpb.github.io/javascript-guide/ecma/expression-and-operator/argb.html) values
 
 ```
-static _template(){ 
+static _template(){
     return {
         rect: true, color: 0xff000000, w: 1920, h: 1080
     }
@@ -176,18 +176,18 @@ which we also be starting to fill really soon.
 ```
 static _states(){
     return [
-    
+
     ]
 }
 ```
 
 Lets step back for a brief moment and think about the different Views / Components we want to create for a game like `Tic Tac Toe`
-We probably need a: 
+We probably need a:
 
 1. A `Splash` screen to display a logo, or when you're creating a different type of app acts as a placeholder up untill the moment
-that all external request are fullfilled and assets are preloaded (if that is a requirement)
+   that all external request are fullfilled and assets are preloaded (if that is a requirement)
 2. A `Main` screen on which the user of the app lands after the `splash` screen hides. In the `main` screen we also render a menu
-which has some interaction with the `remote control`
+   which has some interaction with the `remote control`
 3. A `Game` screen. This screen will hold all the components which are needed to display our Tic Tac Toe game.
 4. A `Menu` Component with `Item` Components.
 
@@ -202,7 +202,7 @@ Inside the `src` folder we create a new file `Splash.js`. After the file is crea
 and import the `Lightning framework` from the `SDK`
 
 ```
-import { Lightning } from "wpe-lightning-sdk";
+import { Lightning } from "@lightningjs/sdk";
 ```
 
 Next, export your Component class so the `App` can import it (we also)
@@ -237,7 +237,7 @@ return {
 
 We add a new empty `Component` to our render-tree with the reference (name) `Logo`. A component's reference name
 must always start with an uppercase character. We use the name to get a reference for the component so we can
-manipulate it's properties in the future: 
+manipulate it's properties in the future:
 
 ```
 // set x position
@@ -246,9 +246,9 @@ this.tag("Logo").x = 200;
 // change alpha
 this.tag("Logo").alpha = 0.5;
 
-// store a reference 
+// store a reference
 const logo = this.tag("Logo");
-``` 
+```
 
 Next we see the components properties, we position the component 960px on the x-axis and 540 on the y-axis.
 By settings the [mount](https://webplatformforembedded.github.io/Lightning/docs/renderEngine/elements/positioning#mount) property we the component to exactly align in the center, no matter the future
@@ -257,7 +257,7 @@ dimensions of the property.
 
 ```
 x: 960, y: 540, mount:0.5,
-``` 
+```
 
 By setting the `text` property we force the Component to be of type `Lightning.texture.TextTexture`, this
 means we can start adding [text properties](https://webplatformforembedded.github.io/Lightning/docs/textures/text) (see our documentation for all the possible text properties)
@@ -279,20 +279,20 @@ we will start defining our [animation](https://webplatformforembedded.github.io/
 
 ```
 _init(){
-    // create animation and store a reference, so we can start / stop / pause 
+    // create animation and store a reference, so we can start / stop / pause
     // in the fututre
     this._pulse = this.tag("Logo").animation({
         duration: 4, repeat: 0, actions:[
             {p:'alpha', v:{0:0, 1:0.5, 1:0}}
         ]
     });
-    
+
     // add a finish eventlistener, so we can send a signal
     // to the parent when the animation is completed
     this._pulse.on("finish", ()=>{
         this.signal("loaded");
     })
-    
+
     // start the animation
     this._pulse.start();
 }
@@ -309,16 +309,16 @@ _active(){
 ```
 
 Now that our `Splash` Component is ready we open the `App.js` file and start adding our component to the root template.
-We import our new component: 
+We import our new component:
 
-``` 
+```
 import Splash from "./Splash.js";
 ```
 
 And add the component to the template. To add an instance of defined `Component` we use the `type` attribute in
 our template definition.
- 
-``` 
+
+```
 static _template() {
     return {
         rect: true, color: 0xff000000, w: 1920, h: 1080,
@@ -337,18 +337,18 @@ One new thing we see in our splash implementation is the use of the `signals` pr
 
 #### Main.js
 
-Next stop, is creating the `Main` component which will be shown at the moment the `Splash` component 
+Next stop, is creating the `Main` component which will be shown at the moment the `Splash` component
 sends the `loaded` `signal`
 
-We create a new file called `Main.js` inside our `src` and add the following code: 
+We create a new file called `Main.js` inside our `src` and add the following code:
 
-``` 
-import { Lightning } from "wpe-lightning-sdk";
+```
+import { Lightning } from "@lightningjs/sdk";
 
 export default class Main extends Lightning.Component {
     static _template(){
         return {
-        
+
         }
     }
 }
@@ -360,22 +360,22 @@ so a user can navigate through the menu items.
 ##### Menu.js
 
 We add a new folder inside our `src` folder called `menu`. In a real world app you may want to structure your re-useable components
-a bit differently. 
+a bit differently.
 
 Inside the `menu` folder we create a new file called `Menu.js`
 
 And populate it with the following content:
-``` 
+```
 export default class Menu extends Lightning.Component{
     static _template(){
         return {
-            // we define a empty holder for our items of 
-            // position it 40px relative to the component position 
+            // we define a empty holder for our items of
+            // position it 40px relative to the component position
             // so we have some space for our focus indicator
             Items:{
                 x:40
             },
-            // Create a text component that indicates 
+            // Create a text component that indicates
             which item has focus
             FocusIndicator:{y:5,
                 text:{text:'>', fontFace:'pixel'}
@@ -385,12 +385,12 @@ export default class Menu extends Lightning.Component{
 }
 ```
 
-We add an `init`, `active` and `inactive` hook in which we create and start our animation and create `index` property that 
+We add an `init`, `active` and `inactive` hook in which we create and start our animation and create `index` property that
 holds the number of the focused menu item.
 
 ```
 _init(){
-    // create a blinking animation 
+    // create a blinking animation
     this._blink = this.tag("FocusIndicator").animation({
         duration:0.5, repeat:-1, actions:[
             {p:'x', v:{0:0, 0.5:-40,1:0}}
@@ -411,17 +411,17 @@ _inactive(){
 ```
 
 We make a small sidestep by going back to `Main.js`, and define the Items we want to show in our `Menu`.
-We alter the template to the following, we import our menu component and add an `items` property to the 
+We alter the template to the following, we import our menu component and add an `items` property to the
 implementation.
 
-> There is a little trick you can use inside the instance of a Component when you add it to template, if you add non-lightning 
+> There is a little trick you can use inside the instance of a Component when you add it to template, if you add non-lightning
 properties to your (just like items in this example) the item will be directly availble in Component definition (this.items) 
 and by adding a setter (set item(v){} ) the setter will be automatically called upon initialization
 
 We provide an array of objects.
 
-``` 
-import { Lightning } from "wpe-lightning-sdk";
+```
+import { Lightning } from "@lightningjs/sdk";
 import Menu from "./menu/Menu.js";
 
 export default class Main extends Lightning.Component {
@@ -445,10 +445,10 @@ Now we go back to `Menu.js` and implement the items creation. `Lightning` suppor
 components to the template. In this example we add the `children` accessor and feed it with an array of objects which will
 be automatically created by `Lightning`.
 
-As noted before the `items` setter will be automatically called, so we can use the map function to return a new 
+As noted before the `items` setter will be automatically called, so we can use the map function to return a new
 array of objects. We also specifiy the type (which at this moment is not existing)
 
-``` 
+```
 set items(v){
     this.tag("Items").children = v.map((el, idx)=>{
         return {type: Item, action: el.action, label: el.label, y: idx*90}
@@ -456,11 +456,11 @@ set items(v){
 }
 ```
 
-To actually add items we need to create the new Component `Item`. So we start by creating a new file in our 
-menu folder called `Item.js` and add the following code: 
+To actually add items we need to create the new Component `Item`. So we start by creating a new file in our
+menu folder called `Item.js` and add the following code:
 
-``` 
-import { Lightning } from "wpe-lightning-sdk";
+```
+import { Lightning } from "@lightningjs/sdk";
 
 export default class Item extends Lightning.Component{
 
@@ -469,17 +469,17 @@ export default class Item extends Lightning.Component{
             text:{text:'', fontFace:'pixel', fontSize:50}
         }
     }
-    
+
     // will be automatically called
     set label(v){
         this.text.text = v;
     }
-    
+
     // will be automatically called
     set action(v){
         this._action = v;
     }
-    
+
     // will be automatically called
     get action(){
         return this._action;
@@ -494,7 +494,7 @@ import Item from "./Item.js";
 ```
 
 Now that we have the `Menu` component which can be filled with `Item`'s it's time to start adding logic
-to out component; 
+to out component;
 
 we add an accessor to get the children inside the Items wrapper.
 
@@ -506,7 +506,7 @@ get items(){
 
 next we add an accessor to quickly grab the active (focused) item
 
-``` 
+```
 get activeItem(){
     return this.items[this._index];
 }
@@ -519,14 +519,14 @@ changes the position of the focus indicator and it stores the new index.
 _setIndex(idx){
     // since it's a one time transition we use smooth
     this.tag("FocusIndicator").setSmooth("y", idx*90 + 5);
-    
+
     // store new index
     this._index = idx;
 }
 ```
 
 Now that we're done with our `Menu` logic it's time to start showing our `App` component when
-the `Splash` has send a `loaded` signal 
+the `Splash` has send a `loaded` signal
 
 ---
 
@@ -535,7 +535,7 @@ the `Splash` has send a `loaded` signal
 First we add a new state to our empty state machine called `Splash`. And force our app to go into that
 state upon `setup` via `_setState()`
 
-``` 
+```
 _setup(){
     this._setState("Splash");
 }
@@ -566,7 +566,7 @@ in a different state / root state)
 Now add a new state to our App's statemachine implementation called `Main` (to safe some space I've hidden the Splash state implementation, but it will still be there)
 
 
-``` 
+```
 _setup(){
     this._setState("Splash");
 }
@@ -579,12 +579,12 @@ static _states() {
                 this.tag("Main").patch({
                     smooth:{alpha:1, y:0}
                 });
-            }    
+            }
             $exit() {
                 this.tag("Main").patch({
                     smooth:{alpha:0, y:100}
                 });
-            }    
+            }
             // change focus path to main
             // component which handles the remotecontrol
             _getFocused() {
@@ -601,7 +601,7 @@ As defined before we add the `$enter()` and `$exit()` hooks to hide / show the `
 
 You can read more in the documentation about [focus](https://webplatformforembedded.github.io/Lightning/docs/focus/focus#__docusaurus) and [remote control](https://webplatformforembedded.github.io/Lightning/docs/focus/keyhandle) key handling
 
-When our app is in the `Main` state we delegate the focus to our `Main` component, which in essence means: 
+When our app is in the `Main` state we delegate the focus to our `Main` component, which in essence means:
 `Telling Lightning which component is the active component - and should handle key events`
 
 Now that have delegated the focus to the `Main` component we can open `Menu.js` again and start implementing
@@ -611,7 +611,7 @@ we implement our first remote control handler, so if this component has focus (v
 be explained later) and the user presses the `up` button, this function will be called. Inside the function
 we will call the `_setIndex` which we still need to declare.
 
-``` 
+```
 _handleUp(){
     this._setIndex(Math.max(0, --this._index));
 }
@@ -632,10 +632,10 @@ Next stop, building the Actual game!
 ##### Game.js
 
 In our `src` folder we create a new file called `Game.js` and populate it with the following code;
-I'm not going to explain every line in detail but will highlight some parts: 
+I'm not going to explain every line in detail but will highlight some parts:
 
-``` 
-import { Lightning } from "wpe-lightning-sdk";
+```
+import { Lightning } from "@lightningjs/sdk";
 export default class Game extends Lightning.Component {
     static _template(){
         return {
@@ -674,20 +674,20 @@ export default class Game extends Lightning.Component {
 ```
 
 We've added a `Game` component which acts as a wrapper for the Game board an score board so it will be easy
-to hide all the contents at once. 
+to hide all the contents at once.
 
 1. PlayerPosition, this is a focus indicator of which tile the player currently is
 2. Field, the outlines of the game field
-3. Markers, the placed [ X ] / [ 0 ] 
+3. Markers, the placed [ X ] / [ 0 ]
 4. ScoreBoard, the current score for player and computer
 5. Notification, the endgame notification (player wins, tie etc), in a real world app we probably would
-move the Notification handler to a different (higher) level so we multiple component can make use of it.
+   move the Notification handler to a different (higher) level so we multiple component can make use of it.
 
 It's also possible to (instead instancing a component via type) populate the `children` within the template.
 This will populate the `Field` Component with 5 lines (rectangles) we also draw two 1px by 5px component and 2 components
 5px by 1px components.
 
-``` 
+```
 Field:{
     x: 400, y: 100,
     children:[
@@ -705,26 +705,26 @@ Let's start adding some logic, we start by adding a new lifecycle event called `
 _construct(){
     // current player tile index
     this._index = 0;
-    
+
     // computer score
     this._aiScore = 0;
-    
+
     // player score
     this._playerScore = 0;
-} 
+}
 ```
 
 Next lifecycle event we add is `active` this will be called when a component `visible` property is true,
 `alpha` higher then 0 and positioned in the renderable screen.
 
-``` 
+```
 _active(){
     this._reset();
-    
+
     // we iterate over the outlines of the field and do a nice
-    // transition of the width / height, so it looks like the 
+    // transition of the width / height, so it looks like the
     // lines are being drawn realtime.
-    
+
     this.tag("Field").children.forEach((el, idx)=>{
         el.setSmooth(idx<2?"w":"h", 900, {duration:0.7, delay:idx*0.15})
     })
@@ -755,11 +755,11 @@ _reset(){
 ```
 
 Now we add our `render` method that accepts a set of tiles and draw some text
-based on the tile value 
+based on the tile value
 
 > e => empty / x => Player / 0 => computer
 
-``` 
+```
 render(tiles){
     this.tag("Markers").children = tiles.map((el, idx)=>{
         return {
@@ -771,13 +771,13 @@ render(tiles){
 }
 ```
 
-Now that we have a good setup for rendering tiles and showing outlines on `active` we can proceed 
+Now that we have a good setup for rendering tiles and showing outlines on `active` we can proceed
 to implement remote control handling.
 
 Since we're working with a 3x3 playfield we check (on remotecontrol `up` )if the new index we want to focus on is larger or
-equal then zero, if we so we call the (to be implemented) `setIndex()` function. 
+equal then zero, if we so we call the (to be implemented) `setIndex()` function.
 
-``` 
+```
 _handleUp(){
     let idx = this._index;
     if(idx-3 >= 0){
@@ -789,7 +789,7 @@ _handleUp(){
 The logic for pressing `down` is mostly equal to the `up` but we check if the new index
 is not larger then the amount of available tiles.
 
-``` 
+```
 _handleDown(){
     let idx = this._index;
     if(idx+3 <= this._tiles.length - 1){
@@ -846,7 +846,7 @@ game tiles, so the next thing we need to do is the actual capturing of a tile by
 On `enter` we first check if we're on an empty tile, if so we place our `X` marker and if the function's return value
 is `true` we set the `Game` component in a `Computer` state (which means it's the computers turn to play)
 
-``` 
+```
 _handleEnter(){
     if(this._tiles[this._index] === "e"){
         if(this.place(this._index, "X")){
@@ -865,7 +865,7 @@ The `place()` function will be called (as stated above) when a user presses `ok`
 5. and return false, so the _handleEnter logic will not go to `Computer` state
 6. If we don't have a winner we return true so the `Game` can go to `Computer` state
 
-``` 
+```
 place(index, marker){
     this._tiles[index] = marker;
     this.render(this._tiles);
@@ -885,7 +885,7 @@ place(index, marker){
 Next thing that we're going to do is model the statemachine. The first state that we're going to add is the `Computer`
 state which means it's the computers turn to play.
 
-in the `$enter()` hook we 
+in the `$enter()` hook we
 
 1. We calculate the new position the computer can move to
 2. If the `return` value is `-1` it means there are no possible moves left and we force the `Game` Component in a `Tie` state because we don't have a winner
@@ -893,13 +893,13 @@ in the `$enter()` hook we
 4. We hide the `PlayerPosition` indicator
 5. When the timeout expires we call `place()` with th `0` marker and go back to the root state `_setState("")
 
-By adding `_captureKey()` we make that every keypress will be captured, but you can still perform some `keyCode` 
+By adding `_captureKey()` we make that every keypress will be captured, but you can still perform some `keyCode`
 specific logic.
 
 When we `$exit()` the `Computer` state we show the `PlayerPosition` indicator again, so the player knows it's
 his turn to play.
 
-``` 
+```
 static _states(){
     return [
         class Computer extends this {
@@ -938,7 +938,7 @@ we wait for a use to press `enter / ok` in the `End` state and then we reset the
 so this will make sure the `$exit()` hook will be called and that's where we show the complete `Game` component again
 and we hide the notification.
 
-``` 
+```
 static _states(){
     return [
         class Computer extends this {
@@ -961,7 +961,7 @@ static _states(){
             }
             static _states(){
                 return [
-                
+
                 ]
             }
         }
@@ -971,12 +971,12 @@ static _states(){
 
 We add a new `_states` object so we can start adding sub states.
 
-When we `$enter()` the `End.Winner` state we 
+When we `$enter()` the `End.Winner` state we
 
 1. Check if the winner is `X` so we increase to the player score
 2. If not, we increase the computer score
 3. Next we do a big [patch](https://webplatformforembedded.github.io/Lightning/docs/renderEngine/patching#__docusaurus) of the template in which we
-hide the Game field, updated the text of the scoreboard, update the `Notification` text and show the `Notification` Component
+   hide the Game field, updated the text of the scoreboard, update the `Notification` text and show the `Notification` Component
 
 When we `$enter()` the `End.Tie` state we
 
@@ -984,7 +984,7 @@ When we `$enter()` the `End.Tie` state we
 2. Update the `Notification` text
 3. And show the `Notification` Component
 
-``` 
+```
 static _states(){
     return [
         class Computer extends this {
@@ -1046,7 +1046,7 @@ Inside our `src` folder we add a `lib` folder and create a new file `GameUtils.j
 We test the current state of the game against a set of winning patterns by normalizing
 the actual pattern values an testing them against a provided regular expression.
 
-``` 
+```
 const getMatchingPatterns = (regex, tiles) => {
     const patterns = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
@@ -1068,7 +1068,7 @@ Next we add `getFuturWinningIndex` which check if there is a potential upcoming 
 for the itself (computer) or it's opponent (the player). We give prio to returning the index
 for the computer's winning move over blocking a potential win for the player.
 
-``` 
+```
 const getFutureWinningIndex = (tiles) => {
     let index = -1;
     const player = /(ex{2}|x{2}e|xex)/i;
